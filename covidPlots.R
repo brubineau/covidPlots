@@ -177,3 +177,6 @@ plotNew(d.prov,"deaths","province")
 
 par(mfrow=c(1,1))
 
+# next steps:
+# bring in population data
+# plot cases normalized by population
