@@ -156,16 +156,26 @@ d.prov$name <- as.character(d.prov$Group.1)
 
 # Georgia & West Virginia Counties
 # GA & WV Cases
-c.gawv <- aggregate(c.us.df[which(c.us.df$Province_State=="Georgia" | c.us.df$Province_State=="West Virginia"),
+c.ga <- aggregate(c.us.df[which(c.us.df$Province_State=="Georgia"),
                             which(substr(names(c.us.df),1,1)=="X")],
-                  by=list(c.us.df$Combined_Key[which(c.us.df$Province_State=="Georgia" | c.us.df$Province_State=="West Virginia")]),FUN=sum,na.rm=T)
-c.gawv$name <- as.character(c.gawv$Group.1)
+                  by=list(c.us.df$Admin2[which(c.us.df$Province_State=="Georgia")]),FUN=sum,na.rm=T)
+c.ga$name <- as.character(c.ga$Group.1)
+
+c.wv <- aggregate(c.us.df[which(c.us.df$Province_State=="West Virginia"),
+                            which(substr(names(c.us.df),1,1)=="X")],
+                    by=list(c.us.df$Admin2[which(c.us.df$Province_State=="West Virginia")]),FUN=sum,na.rm=T)
+c.wv$name <- as.character(c.wv$Group.1)
 
 # GA & WV Deaths
-d.gawv <- aggregate(d.us.df[which(d.us.df$Province_State=="Georgia" | d.us.df$Province_State=="West Virginia"),
-                            which(substr(names(d.us.df),1,1)=="X")],
-                  by=list(d.us.df$Combined_Key[which(d.us.df$Province_State=="Georgia" | d.us.df$Province_State=="West Virginia")]),FUN=sum,na.rm=T)
-d.gawv$name <- as.character(d.gawv$Group.1)
+d.ga <- aggregate(d.us.df[which(d.us.df$Province_State=="Georgia"),
+                          which(substr(names(d.us.df),1,1)=="X")],
+                  by=list(d.us.df$Admin2[which(d.us.df$Province_State=="Georgia")]),FUN=sum,na.rm=T)
+d.ga$name <- as.character(d.ga$Group.1)
+
+d.wv <- aggregate(d.us.df[which(d.us.df$Province_State=="West Virginia"),
+                          which(substr(names(d.us.df),1,1)=="X")],
+                  by=list(d.us.df$Admin2[which(d.us.df$Province_State=="West Virginia")]),FUN=sum,na.rm=T)
+d.wv$name <- as.character(d.wv$Group.1)
 
 # Plot
 # 2 x 3 (Cumulative vs. New x Country, States Provinces)
@@ -189,12 +199,18 @@ plotNew(d.us,"deaths","state")
 plotNew(d.prov,"deaths","province")
 
 # GA & WV
-par(mfrow=c(2,2))
-plotCum(c.gawv,10,"cases","county")
-plotCum(d.gawv,1,"deaths","county")
+par(mfrow=c(2,4))
+plotCum(c.ga,10,"cases","county")
+plotCum(d.ga,1,"deaths","county")
 
-plotNew(c.gawv,"cases","county")
-plotNew(d.gawv,"deaths","county")
+plotCum(c.wv,10,"cases","county")
+plotCum(d.wv,1,"deaths","county")
+
+plotNew(c.ga,"cases","county")
+plotNew(d.ga,"deaths","county")
+
+plotNew(c.wv,"cases","county")
+plotNew(d.wv,"deaths","county")
 
 
 par(mfrow=c(1,1))
