@@ -154,6 +154,19 @@ d.prov <- aggregate(d.df[which(d.df$Country.Region=="Canada"),
                     by=list(d.df$Cprov[which(d.df$Country.Region=="Canada")]),FUN=sum,na.rm=T)
 d.prov$name <- as.character(d.prov$Group.1)
 
+# Georgia & West Virginia Counties
+# GA & WV Cases
+c.gawv <- aggregate(c.us.df[which(c.us.df$Province_State=="Georgia" | c.us.df$Province_State=="West Virginia"),
+                            which(substr(names(c.us.df),1,1)=="X")],
+                  by=list(c.us.df$Combined_Key[which(c.us.df$Province_State=="Georgia" | c.us.df$Province_State=="West Virginia")]),FUN=sum,na.rm=T)
+c.gawv$name <- as.character(c.gawv$Group.1)
+
+# GA & WV Deaths
+d.gawv <- aggregate(d.us.df[which(d.us.df$Province_State=="Georgia" | d.us.df$Province_State=="West Virginia"),
+                            which(substr(names(d.us.df),1,1)=="X")],
+                  by=list(d.us.df$Combined_Key[which(d.us.df$Province_State=="Georgia" | d.us.df$Province_State=="West Virginia")]),FUN=sum,na.rm=T)
+d.gawv$name <- as.character(d.gawv$Group.1)
+
 # Plot
 # 2 x 3 (Cumulative vs. New x Country, States Provinces)
 par(mfrow=c(2,3))
@@ -174,6 +187,15 @@ plotCum(d.prov,10,"deaths","province")
 plotNew(d.country,"deaths","country")
 plotNew(d.us,"deaths","state")
 plotNew(d.prov,"deaths","province")
+
+# GA & WV
+par(mfrow=c(2,2))
+plotCum(c.gawv,10,"cases","county")
+plotCum(d.gawv,1,"deaths","county")
+
+plotNew(c.gawv,"cases","county")
+plotNew(d.gawv,"deaths","county")
+
 
 par(mfrow=c(1,1))
 
