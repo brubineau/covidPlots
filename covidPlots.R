@@ -17,7 +17,7 @@ plotCum <- function(infile,startCount,eventType="cases",unitType="country"){
   # unitType is "country", "state", or "province"; "country" by default
   
   dayData <- which(substr(names(infile),1,1)=="X")
-  days <- length(which(substr(names(infile),1,1)=="X"))
+  days <- length(dayData)
   infile$start <- as.numeric(unlist(apply(infile[,dayData],
                                           MAR=1,function(r){
                                             return(min(which(r>=startCount)))
@@ -25,7 +25,7 @@ plotCum <- function(infile,startCount,eventType="cases",unitType="country"){
   maxCount <- max(as.vector(infile[,dayData]),na.rm=T)
   ordMagCount <- ceiling(log(maxCount,base=10))
   gtStart <- which(infile$start != Inf)
-  xax <- max(apply(infile[,dayData],MAR=1,function(r){
+  xax <- max(apply(infile[which(infile$name != "China"),dayData],MAR=1,function(r){ # remove China here to keep x-axis useful
     sum(as.numeric(r>=startCount))
   }))
   outPlot <- {
@@ -33,7 +33,8 @@ plotCum <- function(infile,startCount,eventType="cases",unitType="country"){
          xlab=paste("Days since",startCount,eventType,"in",unitType,sep=" "), 
          ylab=paste0("Cumulative ",eventType," (logged)"),
          main=paste0("Growth of Covid ",eventType," by ",unitType),
-         xlim=c(0,days-30), # China numbers started >1month before others, and extends the graph, compressing the left side
+#         xlim=c(0,days-30), # China numbers started >1month before others, and extends the graph, compressing the left side
+         xlim=c(0,xax), 
          ylim=c(log(startCount+1),
                 log(10^ordMagCount+1)
          ), axes=F )
@@ -73,7 +74,7 @@ plotNew <- function(infile,eventType="cases",unitType="country"){
                   rep(NA,ceiling(log(1+max(infile[,dayData])))+1), 
                   xlab=paste("Cumulative",eventType,"in",unitType,"(logged)",sep=" "), 
                   ylab=paste0("New ",eventType," in prior 5 days (logged)"),
-                  main=paste0("Growth of Covid ",eventType," by ","province"),
+                  main=paste0("Growth of Covid ",eventType," by ",unitType),
                   ylim=c(log(0+1),
                          log(10^ordMagCount+1)), 
                   axes=F)
@@ -200,17 +201,17 @@ plotNew(d.prov,"deaths","province")
 
 # GA & WV
 par(mfrow=c(2,4))
-plotCum(c.ga,10,"cases","county")
-plotCum(d.ga,1,"deaths","county")
+plotCum(c.ga,10,"cases","GA county")
+plotCum(d.ga,1,"deaths","GA county")
 
-plotCum(c.wv,10,"cases","county")
-plotCum(d.wv,1,"deaths","county")
+plotCum(c.wv,10,"cases","WV county")
+plotCum(d.wv,1,"deaths","WV county")
 
-plotNew(c.ga,"cases","county")
-plotNew(d.ga,"deaths","county")
+plotNew(c.ga,"cases","GA county")
+plotNew(d.ga,"deaths","GA county")
 
-plotNew(c.wv,"cases","county")
-plotNew(d.wv,"deaths","county")
+plotNew(c.wv,"cases","WV county")
+plotNew(d.wv,"deaths","WV county")
 
 
 par(mfrow=c(1,1))
