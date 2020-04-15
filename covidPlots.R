@@ -50,7 +50,7 @@ plotCum <- function(infile,startCount,eventType="cases",unitType="country"){
            y=log(infile[c,(days+1)]+1),
            labels=infile$name[c],col=rainbow(length(gtStart))[which(gtStart==c)])
     }
-    text(x=xax/10,y=log(0.9*(10^ordMagCount)+1),
+    text(x=1,y=log(0.9*(10^ordMagCount)+1),pos=4,
          labels=paste0("Data through: ",
                        as.Date(substr(names(infile)[max(dayData)],2,nchar(names(infile)[max(dayData)])),format="%m.%d.%y")))
   }
@@ -67,7 +67,7 @@ plotNew <- function(infile,eventType="cases",unitType="country"){
   # unitType is "country", "state", or "province"; "country" by default
   
   dayData <- which(substr(names(infile),1,1)=="X")
-  days <- length(which(substr(names(infile),1,1)=="X"))
+  days <- length(dayData)
   ordMagCount <- ceiling(log(max(infile[,dayData]),base=10))
   
   outPlot <- plot(0:ceiling(log(1+max(infile[,dayData]))),
@@ -97,6 +97,13 @@ plotNew <- function(infile,eventType="cases",unitType="country"){
          y=log(1+(infile[c,dayData[length(dayData)]]-infile[c,dayData[length(dayData)-4]])),
          labels=as.character(infile$name)[c],col=rainbow(dim(infile)[1])[c])
   }
+  text(x=1,
+       y=log(0.9*(10^ordMagCount)+1),
+       pos=4,
+       labels=paste0("Data through: ",
+                     as.Date(substr(names(infile)[max(dayData)],
+                                    2,
+                                    nchar(names(infile)[max(dayData)])),format="%m.%d.%y")))
   return(outPlot)
 }
 
