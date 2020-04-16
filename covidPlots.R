@@ -162,29 +162,6 @@ d.prov <- aggregate(d.df[which(d.df$Country.Region=="Canada"),
                     by=list(d.df$Cprov[which(d.df$Country.Region=="Canada")]),FUN=sum,na.rm=T)
 d.prov$name <- as.character(d.prov$Group.1)
 
-# Georgia & West Virginia Counties
-# GA & WV Cases
-c.ga <- aggregate(c.us.df[which(c.us.df$Province_State=="Georgia"),
-                            which(substr(names(c.us.df),1,1)=="X")],
-                  by=list(c.us.df$Admin2[which(c.us.df$Province_State=="Georgia")]),FUN=sum,na.rm=T)
-c.ga$name <- as.character(c.ga$Group.1)
-
-c.wv <- aggregate(c.us.df[which(c.us.df$Province_State=="West Virginia"),
-                            which(substr(names(c.us.df),1,1)=="X")],
-                    by=list(c.us.df$Admin2[which(c.us.df$Province_State=="West Virginia")]),FUN=sum,na.rm=T)
-c.wv$name <- as.character(c.wv$Group.1)
-
-# GA & WV Deaths
-d.ga <- aggregate(d.us.df[which(d.us.df$Province_State=="Georgia"),
-                          which(substr(names(d.us.df),1,1)=="X")],
-                  by=list(d.us.df$Admin2[which(d.us.df$Province_State=="Georgia")]),FUN=sum,na.rm=T)
-d.ga$name <- as.character(d.ga$Group.1)
-
-d.wv <- aggregate(d.us.df[which(d.us.df$Province_State=="West Virginia"),
-                          which(substr(names(d.us.df),1,1)=="X")],
-                  by=list(d.us.df$Admin2[which(d.us.df$Province_State=="West Virginia")]),FUN=sum,na.rm=T)
-d.wv$name <- as.character(d.wv$Group.1)
-
 # Plot
 # 2 x 3 (Cumulative vs. New x Country, States Provinces)
 par(mfrow=c(2,3))
@@ -206,23 +183,30 @@ plotNew(d.country,"deaths","country")
 plotNew(d.us,"deaths","state")
 plotNew(d.prov,"deaths","province")
 
-# GA & WV
-par(mfrow=c(2,4))
-plotCum(c.ga,10,"cases","GA county")
-plotCum(d.ga,1,"deaths","GA county")
-
-plotCum(c.wv,10,"cases","WV county")
-plotCum(d.wv,1,"deaths","WV county")
-
-plotNew(c.ga,"cases","GA county")
-plotNew(d.ga,"deaths","GA county")
-
-plotNew(c.wv,"cases","WV county")
-plotNew(d.wv,"deaths","WV county")
-
-
 par(mfrow=c(1,1))
+
+# Plotting County Info for specific US States
+plotState <- function(stateName){
+  c.st <- aggregate(c.us.df[which(c.us.df$Province_State==stateName),
+                            which(substr(names(c.us.df),1,1)=="X")],
+                    by=list(c.us.df$Admin2[which(c.us.df$Province_State==stateName)]),FUN=sum,na.rm=T)
+  c.st$name <- as.character(c.st$Group.1)
+  d.st <- aggregate(d.us.df[which(d.us.df$Province_State==stateName),
+                            which(substr(names(d.us.df),1,1)=="X")],
+                    by=list(d.us.df$Admin2[which(d.us.df$Province_State==stateName)]),FUN=sum,na.rm=T)
+  d.st$name <- as.character(d.st$Group.1)
+  par(mfrow=c(2,2))
+  plotCum(c.st,10,"cases",paste0(state.abb[which(state.name==stateName)]," county"))
+  plotCum(d.st,1,"deaths",paste0(state.abb[which(state.name==stateName)]," county"))
+  plotNew(c.st,"cases",paste0(state.abb[which(state.name==stateName)]," county"))
+  plotNew(d.st,"deaths",paste0(state.abb[which(state.name==stateName)]," county"))
+  par(mfrow=c(1,1))
+}
+plotState("Georgia")
+plotState("West Virginia")
+
 
 # next steps:
 # bring in population data
 # plot cases normalized by population
+
