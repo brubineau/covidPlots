@@ -206,6 +206,37 @@ plotState("Georgia")
 plotState("West Virginia")
 
 
+# Plotting Country-specific Info with comparisons
+plotCountry <- function(countryName){
+  c.restOfWorld <- rep("Rest of World",dim(c.country)[1])
+  c.restOfWorld[which(c.country$Group.1=="US")] <- "US"
+  c.restOfWorld[which(c.country$Group.1=="Canada")] <- "Canada"
+  c.restOfWorld[which(c.country$Group.1==countryName)] <- countryName
+  c.ct <- rbind(aggregate(c.country[,which(substr(names(c.country),1,1)=="X")],
+                    by=list(c.restOfWorld),FUN=sum,na.rm=T),
+                aggregate(c.country[,which(substr(names(c.country),1,1)=="X")],
+                          by=list(rep("Whole World",dim(c.country)[1])),FUN=sum,na.rm=T))
+  c.ct$name <- as.character(c.ct$Group.1)
+  
+  d.restOfWorld <- rep("Rest of World",dim(d.country)[1])
+  d.restOfWorld[which(d.country$Group.1=="US")] <- "US"
+  d.restOfWorld[which(d.country$Group.1=="Canada")] <- "Canada"
+  d.restOfWorld[which(d.country$Group.1==countryName)] <- countryName
+  d.ct <- rbind(aggregate(d.country[,which(substr(names(d.country),1,1)=="X")],
+                          by=list(d.restOfWorld),FUN=sum,na.rm=T),
+                aggregate(d.country[,which(substr(names(d.country),1,1)=="X")],
+                          by=list(rep("Whole World",dim(d.country)[1])),FUN=sum,na.rm=T))
+  d.ct$name <- as.character(d.ct$Group.1)
+  par(mfrow=c(2,2))
+  plotCum(c.ct,10,"cases"," country")
+  plotCum(d.ct,1,"deaths"," country")
+  plotNew(c.ct,"cases"," country")
+  plotNew(d.ct,"deaths"," country")
+  par(mfrow=c(1,1))
+}
+plotCountry("Sweden")
+plotCountry("Israel")
+
 # next steps:
 # bring in population data
 # plot cases normalized by population
