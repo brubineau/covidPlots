@@ -237,6 +237,10 @@ plotCountry <- function(countryName){
 plotCountry("Sweden")
 plotCountry("Israel")
 
+# Plot Coarse Fatality Rate
+plotFatality <- function(caseFile,deathFile,entityType){}
+
+
 # next steps:
 # bring in population data
 # plot cases normalized by population
