@@ -202,8 +202,8 @@ plotState <- function(stateName){
   plotNew(d.st,"deaths",paste0(state.abb[which(state.name==stateName)]," county"))
   par(mfrow=c(1,1))
 }
-plotState("Georgia")
-plotState("West Virginia")
+# plotState("Georgia")
+# plotState("West Virginia")
 
 
 # Plotting Country-specific Info with comparisons
@@ -234,14 +234,97 @@ plotCountry <- function(countryName){
   plotNew(d.ct,"deaths"," country")
   par(mfrow=c(1,1))
 }
-plotCountry("Sweden")
-plotCountry("Israel")
+# plotCountry("Sweden")
+# plotCountry("Israel")
 
+countryCompare <- function(countryNameVector){
+  par(mfrow=c(2,2))
+  plotCum(c.country[which(c.country$Group.1 %in% countryNameVector),],10,"cases","country")
+  plotCum(d.country[which(d.country$Group.1 %in% countryNameVector),],1,"deaths","country")
+  plotNew(c.country[which(c.country$Group.1 %in% countryNameVector),],"cases","country")
+  plotNew(d.country[which(d.country$Group.1 %in% countryNameVector),],"deaths","country")
+  par(mfrow=c(1,1))
+  
+}
+
+countries <- c("US","Canada","Israel","Korea, South","Singapore","Sweden","Switzerland","Italy","Spain","France","United Kingdom","Denmark","Norway","Finland","Lituania")
+countryCompare(countries)
 # Plot Coarse Fatality Rate
-plotFatality <- function(caseFile,deathFile,entityType){}
-
+plotFatality <- function(caseFile,deathFile,startCount=10,unitType){
+  commonDays <- intersect(names(caseFile)[which(substr(names(caseFile),1,1)=="X")],
+                          names(deathFile)[which(substr(names(deathFile),1,1)=="X")])
+  c.Days <- which(names(caseFile) %in% commonDays)
+  d.Days <- which(names(deathFile) %in% commonDays)
+  commonNames <- sort(intersect(caseFile$name,deathFile$name))
+  fr.df <- Reduce(rbind,
+                  lapply(as.list(commonNames),
+                  function(n){
+                    deathFile[which(deathFile$name==n),d.Days]/
+                      pmax(caseFile[which(caseFile$name==n),c.Days],1)
+  }))
+  names(fr.df) <- commonDays
+  fr.df$name <- commonNames
+  fr.df$start <- as.numeric(unlist(apply(deathFile[,commonDays],
+                                          MAR=1,function(r){
+                                            return(min(which(r>=startCount)))
+                                          })))
+  gtStart <- which(fr.df$start != Inf)
+  xax <- length(commonDays) - min(fr.df$start[intersect(gtStart,which(fr.df$name != "China"))])
+  plot(0:xax,rep(NA,xax+1), 
+         xlab=paste("Days since",startCount," deaths in",unitType,sep=" "), 
+         ylab="fatality rate (deaths/cases)",
+         main=paste0("Changes in Covid Fatality Rate by ",unitType),
+         xlim=c(0,xax), 
+         ylim=c(0,0.15))
+  for(c in gtStart){
+    lines(x=0:(length(commonDays)-fr.df$start[c]),
+          y=(fr.df[c,commonDays][fr.df$start[c]:length(commonDays)]),
+          col=rainbow(length(gtStart))[which(gtStart==c)],lwd=2)
+    text(x=length(commonDays)-fr.df$start[c],
+         y=fr.df[c,commonDays][length(commonDays)],
+         labels=fr.df$name[c],
+         col=rainbow(length(gtStart))[which(gtStart==c)])
+  }
+}
+par(mfrow=c(2,1))
+plotFatality(c.country,d.country,10,"country")
+plotFatality(c.us,d.us,10,"state")
+par(mfrow=c(1,1))
 
 # next steps:
 # bring in population data
 # plot cases normalized by population
 
+sepStates <- c("California","New Jersey","New York","Washington")
+
+par(mfrow=c(2,2))
+# 2 x 3 cases plot
+plotCum(c.us[which(!(c.us$Group.1 %in% sepStates)),],100,"cases","state")
+plotCum(d.us[which(!(c.us$Group.1 %in% sepStates)),],10,"deaths","state")
+plotNew(c.us[which(!(c.us$Group.1 %in% sepStates)),],"cases","state")
+plotNew(d.us[which(!(c.us$Group.1 %in% sepStates)),],"deaths","state")
+par(mfrow=c(1,1))
+
+c.us.ny <- c.us
+c.us.ny$Group.1 <- as.character(c.us.ny$Group.1)  
+c.us.ny$name <- as.character(c.us.ny$name)
+c.us.ny$Group.1[which(!(c.us$Group.1 %in% sepStates))] <- "Rest.of.US"
+c.us.ny$name[which(!(c.us$Group.1 %in% sepStates))] <- "Rest.of.US"
+c.us.ny <- aggregate(c.us.ny[,which(substr(names(c.us.ny),1,1)=="X")],by=list(c.us.ny$name),FUN=sum,na.rm=T)
+c.us.ny$name <- as.character(c.us.ny$Group.1)
+
+d.us.ny <- d.us
+d.us.ny$Group.1 <- as.character(d.us.ny$Group.1)  
+d.us.ny$name <- as.character(d.us.ny$name)
+d.us.ny$Group.1[which(!(c.us$Group.1 %in% sepStates))] <- "Rest.of.US"
+d.us.ny$name[which(!(c.us$Group.1 %in% sepStates))] <- "Rest.of.US"
+d.us.ny <- aggregate(d.us.ny[,which(substr(names(d.us.ny),1,1)=="X")],by=list(d.us.ny$name),FUN=sum,na.rm=T)
+d.us.ny$name <- as.character(d.us.ny$Group.1)
+
+par(mfrow=c(2,2))
+# 2 x 3 cases plot
+plotCum(c.us.ny,100,"cases","state")
+plotCum(d.us.ny,10,"deaths","state")
+plotNew(c.us.ny,"cases","state")
+plotNew(d.us.ny,"deaths","state")
+par(mfrow=c(1,1))
