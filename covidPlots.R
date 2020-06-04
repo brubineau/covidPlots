@@ -247,8 +247,9 @@ countryCompare <- function(countryNameVector){
   
 }
 
-countries <- c("US","Canada","Israel","Korea, South","Singapore","Sweden","Switzerland","Italy","Spain","France","United Kingdom","Denmark","Norway","Finland","Lituania")
-countryCompare(countries)
+# countries <- c("US","Canada","Israel","Korea, South","Singapore","Sweden","Switzerland","Italy","Spain","France","United Kingdom","Denmark","Norway","Finland","Lituania")
+# countryCompare(countries)
+
 # Plot Coarse Fatality Rate
 plotFatality <- function(caseFile,deathFile,startCount=10,unitType){
   commonDays <- intersect(names(caseFile)[which(substr(names(caseFile),1,1)=="X")],
@@ -286,24 +287,24 @@ plotFatality <- function(caseFile,deathFile,startCount=10,unitType){
          col=rainbow(length(gtStart))[which(gtStart==c)])
   }
 }
-par(mfrow=c(2,1))
-plotFatality(c.country,d.country,10,"country")
-plotFatality(c.us,d.us,10,"state")
-par(mfrow=c(1,1))
+# par(mfrow=c(2,1))
+# plotFatality(c.country,d.country,10,"country")
+# plotFatality(c.us,d.us,10,"state")
+# par(mfrow=c(1,1))
 
 # next steps:
 # bring in population data
 # plot cases normalized by population
 
-sepStates <- c("California","New Jersey","New York","Washington")
+sepStates <- c("California","New Jersey","New York","Washington","West Virginia","Georgia")
 
-par(mfrow=c(2,2))
-# 2 x 3 cases plot
-plotCum(c.us[which(!(c.us$Group.1 %in% sepStates)),],100,"cases","state")
-plotCum(d.us[which(!(c.us$Group.1 %in% sepStates)),],10,"deaths","state")
-plotNew(c.us[which(!(c.us$Group.1 %in% sepStates)),],"cases","state")
-plotNew(d.us[which(!(c.us$Group.1 %in% sepStates)),],"deaths","state")
-par(mfrow=c(1,1))
+# par(mfrow=c(2,2))
+# # 2 x 3 cases plot
+# plotCum(c.us[which(!(c.us$Group.1 %in% sepStates)),],100,"cases","state")
+# plotCum(d.us[which(!(c.us$Group.1 %in% sepStates)),],10,"deaths","state")
+# plotNew(c.us[which(!(c.us$Group.1 %in% sepStates)),],"cases","state")
+# plotNew(d.us[which(!(c.us$Group.1 %in% sepStates)),],"deaths","state")
+# par(mfrow=c(1,1))
 
 c.us.ny <- c.us
 c.us.ny$Group.1 <- as.character(c.us.ny$Group.1)  
