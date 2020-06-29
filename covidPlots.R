@@ -329,3 +329,71 @@ plotCum(d.us.ny,10,"deaths","state")
 plotNew(c.us.ny,"cases","state")
 plotNew(d.us.ny,"deaths","state")
 par(mfrow=c(1,1))
+
+
+# Stacked graph of selected US states
+
+date2column <- function(d,df){
+  which(names(df)== paste0("X",
+                   paste(as.numeric(format(d,"%m")),
+                         as.numeric(format(d,"%d")),
+                         as.numeric(format(d,"%y")),collapse=".",sep=".")))}
+
+plotStacked <- function(infile,eventType){
+  if.stack.days <- as.Date(substr(names(infile)[which(substr(names(infile),1,1)=="X")],
+                                  2,
+                                  stop=nchar(names(infile)[which(substr(names(infile),1,1)=="X")])),
+                           format="%m.%d.%y")
+  startDay <- max(if.stack.days)-90
+  endDay <- max(if.stack.days)
+  dayRange <- as.numeric(endDay - startDay)
+  top5recent <- infile$name[(order(infile[,date2column(endDay,infile)]-infile[,date2column(endDay,infile)-13],decreasing = T)[1:5])] # use last 2 weeks 
+  top5total <- infile$name[(order(infile[,date2column(endDay,infile)],decreasing = T)[1:5])]
+  stackStates <- union(c("Georgia",top5recent),c("West Virginia",top5total))
+  df.stack <- infile
+  df.stack$Group.1 <- as.character(df.stack$Group.1)  
+  df.stack$name <- as.character(df.stack$name)
+  df.stack$Group.1[which(!(infile$Group.1 %in% stackStates))] <- "Rest.of.US"
+  df.stack$name[which(!(infile$Group.1 %in% stackStates))] <- "Rest.of.US"
+  df.stack <- aggregate(df.stack[,which(substr(names(df.stack),1,1)=="X")],by=list(df.stack$name),FUN=sum,na.rm=T)
+  df.stack$name <- as.character(df.stack$Group.1)
+  df.14.ma.stack <- (df.stack[,(date2column(startDay,df.stack)):(date2column(endDay,df.stack))]-
+                       df.stack[,(date2column(startDay,df.stack)-13):(date2column(endDay,df.stack)-13)])/14
+  names(df.14.ma.stack) <- names(df.stack)[date2column(startDay,df.stack):date2column(endDay,df.stack)]
+  df.14.ma.stack$name <- df.stack$name
+  df.stack.max <- max(colSums(df.14.ma.stack[,1:(dim(df.14.ma.stack)[2]-1)]))
+  plot(1:(dayRange+10),
+       rep(NA,dayRange+10),axes=F,
+       ylim=c(0,df.stack.max),
+       # xlab="days",
+       # ylab=eventType,
+       main=paste0("New daily ",eventType," (averaging over prior 14 days) in the past 3 months"))
+  axis(1,labels=if.stack.days[which(if.stack.days <= endDay & if.stack.days>=startDay)],
+       at=1+(0:dayRange))
+  axis(2)
+  for(c in 1:(dim(df.14.ma.stack)[1])){
+    bottom <- NA
+    if (c==1) {
+      bottom <- rep(0,dayRange+1)
+    }
+    else {
+      bottom <- rev(colSums(df.14.ma.stack[1:(c-1),1:(dim(df.14.ma.stack)[2]-1)]))
+    }
+    polygon(x=c(1+(0:dayRange),seq(dayRange+1,1,-1)),
+            y=c(colSums(df.14.ma.stack[1:c,1:(dim(df.14.ma.stack)[2]-1)]),
+                bottom),
+            col=rainbow(dim(df.14.ma.stack)[1])[c])
+    text(x=dayRange+1,
+         y=(sum(df.14.ma.stack[1:c,dim(df.14.ma.stack)[2]-1])+
+              bottom[1])/2,
+         labels=as.character(df.14.ma.stack$name)[c],
+         col=rainbow(dim(df.14.ma.stack)[1])[c],
+         adj=0)
+  }
+}
+par(mfrow=c(2,1),mar=c(2,2,4,2))
+plotStacked(c.us,"cases")
+plotStacked(d.us,"deaths")
+par(mfrow=c(1,1),mar=0.1+c(5,4,4,2)) # return to defaults
+
+
