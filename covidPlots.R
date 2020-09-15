@@ -89,12 +89,15 @@ plotNew <- function(infile,eventType="cases",unitType="country"){
                                function(t){sapply(1:9,function(m){m*(10^t)})}))),lwd=0.25,col="gray")
   
   for(c in 1:(dim(infile)[1])){
+    ys <- log(1+(sapply(1:(length(dayData)-4),function(d){
+      mean(diff(as.numeric(infile[c,dayData]))[d:(d+4)],na.rm=T)})))
     lines(x=log(1+infile[c,dayData[5:length(dayData)]]),
-          y=log(1+(infile[c,dayData[5:length(dayData)]]-
-                     infile[c,dayData[1:(length(dayData)-4)]])),
+          # y=log(1+(infile[c,dayData[5:length(dayData)]]-
+          #            infile[c,dayData[1:(length(dayData)-4)]])),
+          y=ys,
           col=rainbow(dim(infile)[1])[c],lwd=2)
     text(x=log(1+infile[c,dayData[length(dayData)]]),
-         y=log(1+(infile[c,dayData[length(dayData)]]-infile[c,dayData[length(dayData)-4]])),
+         y=ys[length(ys)],
          labels=as.character(infile$name)[c],col=rainbow(dim(infile)[1])[c])
   }
   text(x=1,
@@ -396,4 +399,8 @@ plotStacked(c.us,"cases")
 plotStacked(d.us,"deaths")
 par(mfrow=c(1,1),mar=0.1+c(5,4,4,2)) # return to defaults
 
+# par(mfrow=c(2,1),mar=c(2,2,4,2))
+# plotStacked(c.us[which(c.us$Group.1!="New Jersey" & c.us$Group.1!="New York"),],"cases")
+# plotStacked(d.us[which(d.us$Group.1!="New Jersey" & d.us$Group.1!="New York"),],"deaths")
+# par(mfrow=c(1,1),mar=0.1+c(5,4,4,2)) # return to defaults
 
