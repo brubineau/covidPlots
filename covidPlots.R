@@ -7,6 +7,38 @@ gc()
 
 # Create Functions for Plotting Cumulative Events (Confirmed ases or Deaths) growth and New Cases 
 
+getSubset <- function(infile,unitType){
+  if.stack.days <- as.Date(substr(names(infile)[which(substr(names(infile),1,1)=="X")],
+                                  2,
+                                  stop=nchar(names(infile)[which(substr(names(infile),1,1)=="X")])),
+                           format="%m.%d.%y")
+  startDay <- max(if.stack.days)-90
+  endDay <- max(if.stack.days)
+  dayRange <- as.numeric(endDay - startDay)
+  top5recent <- infile$name[(order(infile[,date2column(endDay,infile)]-infile[,date2column(endDay,infile)-13],decreasing = T)[1:5])] # use last 2 weeks 
+  top5total <- infile$name[(order(infile[,date2column(endDay,infile)],decreasing = T)[1:5])]
+  plus <- NA
+  restText <- NA
+  if (unitType=="state") {
+    plus <- c("Georgia","West Virginia")
+    restText <- "rest.of.US"
+  }
+  else if (unitType=="country") {
+    plus <- c("US","Israel","Canada")
+    restText <- "rest.of.World"
+  }
+  subsetNames <- sort(unique(c(top5recent,top5total,plus)))
+  df.stack <- infile
+  df.stack$Group.1 <- as.character(df.stack$Group.1)  
+  df.stack$name <- as.character(df.stack$name)
+  df.stack$Group.1[which(!(infile$Group.1 %in% subsetNames))] <- restText
+  df.stack$name[which(!(infile$Group.1 %in% subsetNames))] <- restText
+  df.stack <- aggregate(df.stack[,which(substr(names(df.stack),1,1)=="X")],by=list(df.stack$name),FUN=sum,na.rm=T)
+  df.stack$name <- as.character(df.stack$Group.1)
+  return(df.stack)
+}
+
+
 # Cumulative Cases or Deaths
 plotCum <- function(infile,startCount,eventType="cases",unitType="country"){
   # infile a data.frame with:
@@ -169,21 +201,21 @@ d.prov$name <- as.character(d.prov$Group.1)
 # 2 x 3 (Cumulative vs. New x Country, States Provinces)
 par(mfrow=c(2,3))
 # 2 x 3 cases plot
-plotCum(c.country,100,"cases","country")
-plotCum(c.us,100,"cases","state")
+plotCum(getSubset(c.country,"country"),100,"cases","country")
+plotCum(getSubset(c.us,"state"),100,"cases","state")
 plotCum(c.prov,100,"cases","province")
 
-plotNew(c.country,"cases","country")
-plotNew(c.us,"cases","state")
+plotNew(getSubset(c.country,"country"),"cases","country")
+plotNew(getSubset(c.us,"state"),"cases","state")
 plotNew(c.prov,"cases","province")
 
 # 2 x 3 deaths plot
-plotCum(d.country,10,"deaths","country")
-plotCum(d.us,10,"deaths","state")
+plotCum(getSubset(d.country,"country"),10,"deaths","country")
+plotCum(getSubset(d.us,"state"),10,"deaths","state")
 plotCum(d.prov,10,"deaths","province")
 
-plotNew(d.country,"deaths","country")
-plotNew(d.us,"deaths","state")
+plotNew(getSubset(d.country,"country"),"deaths","country")
+plotNew(getSubset(d.us,"state"),"deaths","state")
 plotNew(d.prov,"deaths","province")
 
 par(mfrow=c(1,1))
@@ -327,10 +359,10 @@ d.us.ny$name <- as.character(d.us.ny$Group.1)
 
 par(mfrow=c(2,2))
 # 2 x 3 cases plot
-plotCum(c.us.ny,100,"cases","state")
-plotCum(d.us.ny,10,"deaths","state")
-plotNew(c.us.ny,"cases","state")
-plotNew(d.us.ny,"deaths","state")
+plotCum(getSubset(c.us,"state"),100,"cases","state")
+plotCum(getSubset(d.us,"state"),10,"deaths","state")
+plotNew(getSubset(c.us,"state"),"cases","state")
+plotNew(getSubset(d.us,"state"),"deaths","state")
 par(mfrow=c(1,1))
 
 
@@ -342,7 +374,8 @@ date2column <- function(d,df){
                          as.numeric(format(d,"%d")),
                          as.numeric(format(d,"%y")),collapse=".",sep=".")))}
 
-plotStacked <- function(infile,eventType){
+
+plotStacked <- function(infile,eventType,unitType){
   if.stack.days <- as.Date(substr(names(infile)[which(substr(names(infile),1,1)=="X")],
                                   2,
                                   stop=nchar(names(infile)[which(substr(names(infile),1,1)=="X")])),
@@ -350,16 +383,17 @@ plotStacked <- function(infile,eventType){
   startDay <- max(if.stack.days)-90
   endDay <- max(if.stack.days)
   dayRange <- as.numeric(endDay - startDay)
-  top5recent <- infile$name[(order(infile[,date2column(endDay,infile)]-infile[,date2column(endDay,infile)-13],decreasing = T)[1:5])] # use last 2 weeks 
-  top5total <- infile$name[(order(infile[,date2column(endDay,infile)],decreasing = T)[1:5])]
-  stackStates <- union(c("Georgia",top5recent),c("West Virginia",top5total))
-  df.stack <- infile
-  df.stack$Group.1 <- as.character(df.stack$Group.1)  
-  df.stack$name <- as.character(df.stack$name)
-  df.stack$Group.1[which(!(infile$Group.1 %in% stackStates))] <- "Rest.of.US"
-  df.stack$name[which(!(infile$Group.1 %in% stackStates))] <- "Rest.of.US"
-  df.stack <- aggregate(df.stack[,which(substr(names(df.stack),1,1)=="X")],by=list(df.stack$name),FUN=sum,na.rm=T)
-  df.stack$name <- as.character(df.stack$Group.1)
+  # top5recent <- infile$name[(order(infile[,date2column(endDay,infile)]-infile[,date2column(endDay,infile)-13],decreasing = T)[1:5])] # use last 2 weeks 
+  # top5total <- infile$name[(order(infile[,date2column(endDay,infile)],decreasing = T)[1:5])]
+  # stackStates <- union(c("Georgia",top5recent),c("West Virginia",top5total))
+  # df.stack <- infile
+  # df.stack$Group.1 <- as.character(df.stack$Group.1)  
+  # df.stack$name <- as.character(df.stack$name)
+  # df.stack$Group.1[which(!(infile$Group.1 %in% stackStates))] <- "Rest.of.US"
+  # df.stack$name[which(!(infile$Group.1 %in% stackStates))] <- "Rest.of.US"
+  # df.stack <- aggregate(df.stack[,which(substr(names(df.stack),1,1)=="X")],by=list(df.stack$name),FUN=sum,na.rm=T)
+  # df.stack$name <- as.character(df.stack$Group.1)
+  df.stack <- getSubset(infile,unitType)
   df.14.ma.stack <- (df.stack[,(date2column(startDay,df.stack)):(date2column(endDay,df.stack))]-
                        df.stack[,(date2column(startDay,df.stack)-13):(date2column(endDay,df.stack)-13)])/14
   names(df.14.ma.stack) <- names(df.stack)[date2column(startDay,df.stack):date2column(endDay,df.stack)]
@@ -395,8 +429,13 @@ plotStacked <- function(infile,eventType){
   }
 }
 par(mfrow=c(2,1),mar=c(2,2,4,2))
-plotStacked(c.us,"cases")
-plotStacked(d.us,"deaths")
+plotStacked(c.us,"cases","state")
+plotStacked(d.us,"deaths","state")
+par(mfrow=c(1,1),mar=0.1+c(5,4,4,2)) # return to defaults
+
+par(mfrow=c(2,1),mar=c(2,2,4,2))
+plotStacked(c.country,"cases","country")
+plotStacked(d.country,"deaths","country")
 par(mfrow=c(1,1),mar=0.1+c(5,4,4,2)) # return to defaults
 
 # par(mfrow=c(2,1),mar=c(2,2,4,2))
