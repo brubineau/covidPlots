@@ -38,6 +38,16 @@ getSubset <- function(infile,unitType){
   return(df.stack)
 }
 
+# Stacked graph of selected US states
+
+date2column <- function(d,df){
+  which(names(df)== paste0("X",
+                           paste(as.numeric(format(d,"%m")),
+                                 as.numeric(format(d,"%d")),
+                                 as.numeric(format(d,"%y")),collapse=".",sep=".")))}
+
+
+
 
 # Cumulative Cases or Deaths
 plotCum <- function(infile,startCount,eventType="cases",unitType="country"){
@@ -365,14 +375,6 @@ plotNew(getSubset(c.us,"state"),"cases","state")
 plotNew(getSubset(d.us,"state"),"deaths","state")
 par(mfrow=c(1,1))
 
-
-# Stacked graph of selected US states
-
-date2column <- function(d,df){
-  which(names(df)== paste0("X",
-                   paste(as.numeric(format(d,"%m")),
-                         as.numeric(format(d,"%d")),
-                         as.numeric(format(d,"%y")),collapse=".",sep=".")))}
 
 
 plotStacked <- function(infile,eventType,unitType){
