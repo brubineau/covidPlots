@@ -351,28 +351,28 @@ sepStates <- c("California","New Jersey","New York","Washington","West Virginia"
 # plotNew(d.us[which(!(c.us$Group.1 %in% sepStates)),],"deaths","state")
 # par(mfrow=c(1,1))
 
-c.us.ny <- c.us
-c.us.ny$Group.1 <- as.character(c.us.ny$Group.1)  
-c.us.ny$name <- as.character(c.us.ny$name)
-c.us.ny$Group.1[which(!(c.us$Group.1 %in% sepStates))] <- "Rest.of.US"
-c.us.ny$name[which(!(c.us$Group.1 %in% sepStates))] <- "Rest.of.US"
-c.us.ny <- aggregate(c.us.ny[,which(substr(names(c.us.ny),1,1)=="X")],by=list(c.us.ny$name),FUN=sum,na.rm=T)
-c.us.ny$name <- as.character(c.us.ny$Group.1)
+# c.us.ny <- c.us
+# c.us.ny$Group.1 <- as.character(c.us.ny$Group.1)  
+# c.us.ny$name <- as.character(c.us.ny$name)
+# c.us.ny$Group.1[which(!(c.us$Group.1 %in% sepStates))] <- "Rest.of.US"
+# c.us.ny$name[which(!(c.us$Group.1 %in% sepStates))] <- "Rest.of.US"
+# c.us.ny <- aggregate(c.us.ny[,which(substr(names(c.us.ny),1,1)=="X")],by=list(c.us.ny$name),FUN=sum,na.rm=T)
+# c.us.ny$name <- as.character(c.us.ny$Group.1)
+# 
+# d.us.ny <- d.us
+# d.us.ny$Group.1 <- as.character(d.us.ny$Group.1)  
+# d.us.ny$name <- as.character(d.us.ny$name)
+# d.us.ny$Group.1[which(!(c.us$Group.1 %in% sepStates))] <- "Rest.of.US"
+# d.us.ny$name[which(!(c.us$Group.1 %in% sepStates))] <- "Rest.of.US"
+# d.us.ny <- aggregate(d.us.ny[,which(substr(names(d.us.ny),1,1)=="X")],by=list(d.us.ny$name),FUN=sum,na.rm=T)
+# d.us.ny$name <- as.character(d.us.ny$Group.1)
 
-d.us.ny <- d.us
-d.us.ny$Group.1 <- as.character(d.us.ny$Group.1)  
-d.us.ny$name <- as.character(d.us.ny$name)
-d.us.ny$Group.1[which(!(c.us$Group.1 %in% sepStates))] <- "Rest.of.US"
-d.us.ny$name[which(!(c.us$Group.1 %in% sepStates))] <- "Rest.of.US"
-d.us.ny <- aggregate(d.us.ny[,which(substr(names(d.us.ny),1,1)=="X")],by=list(d.us.ny$name),FUN=sum,na.rm=T)
-d.us.ny$name <- as.character(d.us.ny$Group.1)
-
-par(mfrow=c(2,2))
-# 2 x 3 cases plot
-plotCum(getSubset(c.us,"state"),100,"cases","state")
-plotCum(getSubset(d.us,"state"),10,"deaths","state")
-plotNew(getSubset(c.us,"state"),"cases","state")
-plotNew(getSubset(d.us,"state"),"deaths","state")
+# par(mfrow=c(2,2))
+# # 2 x 3 cases plot
+# plotCum(getSubset(c.us,"state"),100,"cases","state")
+# plotCum(getSubset(d.us,"state"),10,"deaths","state")
+# plotNew(getSubset(c.us,"state"),"cases","state")
+# plotNew(getSubset(d.us,"state"),"deaths","state")
 par(mfrow=c(1,1))
 
 
