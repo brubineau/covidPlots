@@ -7,12 +7,12 @@ gc()
 
 # Create Functions for Plotting Cumulative Events (Confirmed ases or Deaths) growth and New Cases 
 
-getSubset <- function(infile,unitType){
+getSubset <- function(infile,unitType,pastWindow=90){
   if.stack.days <- as.Date(substr(names(infile)[which(substr(names(infile),1,1)=="X")],
                                   2,
                                   stop=nchar(names(infile)[which(substr(names(infile),1,1)=="X")])),
                            format="%m.%d.%y")
-  startDay <- max(if.stack.days)-90
+  startDay <- max(if.stack.days)-pastWindow
   endDay <- max(if.stack.days)
   dayRange <- as.numeric(endDay - startDay)
   top5recent <- infile$name[(order(infile[,date2column(endDay,infile)]-infile[,date2column(endDay,infile)-13],decreasing = T)[1:5])] # use last 2 weeks 
@@ -377,12 +377,12 @@ par(mfrow=c(1,1))
 
 
 
-plotStacked <- function(infile,eventType,unitType){
+plotStacked <- function(infile,eventType,unitType,pastWindow=90){
   if.stack.days <- as.Date(substr(names(infile)[which(substr(names(infile),1,1)=="X")],
                                   2,
                                   stop=nchar(names(infile)[which(substr(names(infile),1,1)=="X")])),
                            format="%m.%d.%y")
-  startDay <- max(if.stack.days)-90
+  startDay <- max(if.stack.days)-pastWindow
   endDay <- max(if.stack.days)
   dayRange <- as.numeric(endDay - startDay)
   # top5recent <- infile$name[(order(infile[,date2column(endDay,infile)]-infile[,date2column(endDay,infile)-13],decreasing = T)[1:5])] # use last 2 weeks 
@@ -395,7 +395,7 @@ plotStacked <- function(infile,eventType,unitType){
   # df.stack$name[which(!(infile$Group.1 %in% stackStates))] <- "Rest.of.US"
   # df.stack <- aggregate(df.stack[,which(substr(names(df.stack),1,1)=="X")],by=list(df.stack$name),FUN=sum,na.rm=T)
   # df.stack$name <- as.character(df.stack$Group.1)
-  df.stack <- getSubset(infile,unitType)
+  df.stack <- getSubset(infile,unitType,pastWindow)
   df.14.ma.stack <- (df.stack[,(date2column(startDay,df.stack)):(date2column(endDay,df.stack))]-
                        df.stack[,(date2column(startDay,df.stack)-13):(date2column(endDay,df.stack)-13)])/14
   names(df.14.ma.stack) <- names(df.stack)[date2column(startDay,df.stack):date2column(endDay,df.stack)]
@@ -431,13 +431,13 @@ plotStacked <- function(infile,eventType,unitType){
   }
 }
 par(mfrow=c(2,1),mar=c(2,2,4,2))
-plotStacked(c.us,"cases","state")
-plotStacked(d.us,"deaths","state")
+plotStacked(c.us,"cases","state",pastWindow = 270)
+plotStacked(d.us,"deaths","state",pastWindow = 270)
 par(mfrow=c(1,1),mar=0.1+c(5,4,4,2)) # return to defaults
 
 par(mfrow=c(2,1),mar=c(2,2,4,2))
-plotStacked(c.country,"cases","country")
-plotStacked(d.country,"deaths","country")
+plotStacked(c.country,"cases","country",pastWindow = 270)
+plotStacked(d.country,"deaths","country",pastWindow = 270)
 par(mfrow=c(1,1),mar=0.1+c(5,4,4,2)) # return to defaults
 
 # par(mfrow=c(2,1),mar=c(2,2,4,2))
